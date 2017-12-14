@@ -74,7 +74,7 @@ header .logoutBlock{
     position: absolute;
 }
 header .photo{
-    background:url('/static/imgs/tqs.jpg') no-repeat center center ;
+    background:url('../assets/img/account.jpeg') no-repeat center center ;
     background-size: cover;
     float: left;
     width:40px;

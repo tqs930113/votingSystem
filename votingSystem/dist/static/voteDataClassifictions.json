@@ -1,0 +1,40 @@
+{
+    "pagination": {
+        "total": 16,
+        "per_page": 15,
+        "current_page": 1,
+        "last_page": 2,
+        "from": 1,
+        "to": 2
+    },
+    "classificationsOptions":[{
+        "value": "ongoing",
+        "label": "进行中"
+      }, {
+        "value": "votingEnd",
+        "label": "已结束"
+      }, {
+        "value": "notStarted",
+        "label": "未开始"
+      }],
+    "data": [
+        {
+            "voteId": "1",
+            "createDate": "2016-05-03",
+            "status": "进行中",
+            "voteTitle": "科协创作与传播大赛 - 文案类"
+        },
+        {
+            "voteId": "2",
+            "createDate": "2016-05-03",
+            "status": "进行中",
+            "voteTitle": "科协创作与传播大赛 - 图片类"
+        },
+        {
+            "voteId": "3",
+            "createDate": "2016-05-03",
+            "status": "进行中",
+            "voteTitle": "科协创作与传播大赛 - 音频"
+        }
+    ]
+}

@@ -5,10 +5,10 @@
 </template>
 <style>
 html,body{
-  /* font-family: "Helvetica Neue",Helvetica, "microsoft yahei", arial, STHeiTi, sans-serif; */
   height: 100%;
   min-height: 500px;
   min-width: 600px;
+  overflow:  hidden;
 }
 *{
   margin: 0;
@@ -63,6 +63,13 @@ html,body{
     line-height: 20px;
     top: 1px;
     right: 17px;
+}
+.createNewItem .voteItems .voteItemBlock > label,
+.editVote .voteItems .voteItemBlock > label{
+  font-family: "STFangsong";
+  font-size: 43px;
+  font-style: italic;
+  text-align: center;
 }
 .base-table .el-table td{
   padding: 5px 0;

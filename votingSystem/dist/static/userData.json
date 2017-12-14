@@ -1,0 +1,54 @@
+{
+    "pagination": {
+        "total": 16,
+        "per_page": 15,
+        "current_page": 1,
+        "last_page": 2,
+        "from": 1,
+        "to": 2
+    },
+    "classificationsOptions":[{
+        "value": "ongoing",
+        "label": "进行中"
+      }, {
+        "value": "votingEnd",
+        "label": "已结束"
+      }, {
+        "value": "notStarted",
+        "label": "未开始"
+      }],
+    "data": [
+        {
+            "voteId": "1",
+            "createDate": "2016-05-03",
+            "status": "进行中",
+            "voteTitle": "username1",
+            "gender": "男",
+            "contact": "18615723231"
+        },
+        {
+            "voteId": "2",
+            "createDate": "2016-05-03",
+            "status": "进行中",
+            "voteTitle": "username2",
+            "gender": "男",
+            "contact": "18615723231"
+        },
+        {
+            "voteId": "3",
+            "createDate": "2016-05-03",
+            "status": "进行中",
+            "voteTitle": "username3",
+            "gender": "男",
+            "contact": "18615723231"
+        },
+        {
+            "voteId": "4",
+            "createDate": "2016-05-03",
+            "status": "激活",
+            "voteTitle": "username4",
+            "gender": "女",
+            "contact": "18615723231"
+        }
+    ]
+}

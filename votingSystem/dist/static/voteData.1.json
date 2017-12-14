@@ -1,0 +1,18 @@
+{
+    "pagination": {
+        "total": 16,
+        "per_page": 16,
+        "current_page": 2,
+        "last_page": 2,
+        "from": 1,
+        "to": 2
+    },
+    "data": [
+        {
+            "voteId": "1",
+            "createDate": "2016-05-03",
+            "status": "进行中",
+            "voteTitle": "科协创作与传播大赛 - 文案类"
+        }
+    ]
+}

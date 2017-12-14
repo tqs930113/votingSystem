@@ -63,13 +63,13 @@ export default {
           children: [
             {
               id: 22,
-              label: '基本表单',
-              index: 'baseForm'
+              label: '前台配置',
+              index: 'webSetting'
             },
             {
               id: 23,
-              label: '编辑器',
-              index: 'editor'
+              label: '系统配置',
+              index: 'systemSetting'
             }
           ]
         }
