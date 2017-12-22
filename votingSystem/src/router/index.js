@@ -44,7 +44,7 @@ export default new Router({
           component: voteManager
         },
         {
-          path: '/statisticalAnalysis',
+          path: '/statisticalAnalysis/:voteId',
           component: statisticalAnalysis
         },
         {

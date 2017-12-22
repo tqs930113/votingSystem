@@ -8,7 +8,6 @@
       <div class="tool-bar">
       <div class="tool-bar-btns">
          <el-button  class="control " size='small' id="createUser"  @click="createNewUser" icon="el-icon-circle-plus-outline" type="primary">新建用户</el-button>
-        <!-- <el-button  class="control" size='small' id="editUser"   icon="el-icon-edit" type="primary">修改用户</el-button> -->
         <el-button  class="control " size='small' id="activateUser" icon="el-icon-upload2" type="primary">激活用户</el-button>
         <el-button  class="control " size='small' id="stopUser" icon="el-icon-remove-outline" type="primary">停用用户</el-button>
         <el-button class="control "   size='small' id="deleteUsers" type="danger" @click="itemsDelete" icon="el-icon-delete" >批量删除</el-button>
@@ -96,7 +95,7 @@
               <el-button
                 size="mini"
                 type="text"
-                @click="handleDelete(scope.$index, scope.row)">设置为管理员</el-button>
+                @click="setOrUnsetAdmin(scope.$index, scope.row)">{{ scope.row.isAdmin === '是' ? '取消管理员' : '设为管理员'}}</el-button>
             </template>   
           </el-table-column>
         </el-table>
@@ -133,15 +132,17 @@
           <el-form-item label="是否管理员：" :label-width="formLabelWidth">
             <el-switch
               v-model="userform.isAdmin"
-              active-value='1'
-              inactive-value='0'>
+              :check = 'userform.isAdmin === "是" ? true : false'
+              active-value='是'
+              inactive-value='否'>
             </el-switch>
           </el-form-item>
         </el-col>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitUserForm">提 交</el-button>
+        <el-button  v-if="isEditUser"  type="primary" @click="editUserForm">修改</el-button>
+        <el-button v-else type="primary" @click="submitUserForm">提 交</el-button>
       </div>
     </el-dialog>
   </div>
@@ -191,7 +192,7 @@ export default {
         let result = res.data
         // 渲染表格数据
         obj.tableData = []
-        result.data.content.forEach(element => {
+        result.datas.content.forEach(element => {
           let tempObj = {}
           var objConfig = systemConfig.numToStr.userManagerNumToStr
           var isAdminConfig = objConfig.isAdmin
@@ -219,10 +220,10 @@ export default {
           obj.tableData.push(tempObj)
         })
         // 渲染分页数据
-        obj.page.total = result.data.totalElements
-        obj.page.pageSize = result.data.size
-        obj.page.totalPages = result.data.totalPages
-        obj.page.currentPage = result.data.number + 1
+        obj.page.total = result.datas.totalElements
+        obj.page.pageSize = result.datas.size
+        obj.page.totalPages = result.datas.totalPages
+        obj.page.currentPage = result.datas.number
         // 取消加载遮罩层
         obj.loading = false
         ajaxResultStatus = true
@@ -242,8 +243,8 @@ export default {
       api.delete(params)
       .then(function (res) {
         that.loading = false
-        if (res.data.state !== '000000') {
-          api.reqSuccess(that, res.data.message)
+        if (res.data.code !== '000000') {
+          api.reqFail(that, res.datas.message)
           return false
         }
         that.initDatas()
@@ -265,24 +266,14 @@ export default {
     handleSelectionChange (val) {
       this.multipleSelection = val
     },
-    editUser () {
-      // 修改用户
-      var id = ''
-      if (this.multipleSelection.length === 0) {
-        api.reqFail(this, '未选中用户，请至少选择一项')
-        return false
-      }
-      if (this.multipleSelection.length > 1) {
-        api.reqFail(this, '仅能选一项进行修改')
-        return false
-      }
-      id = this.multipleSelection[0].objId
-      this.$router.push(`/editVote/editVote/${id}`)
-    },
     handleEdit (index, row) {
       // 修改用户
-      var id = row.objId
-      this.$router.push(`/editVote/editVoteItems/${id}`)
+      this.userform.objId = row.objId
+      this.userform.username = row.username
+      this.userform.nickname = row.nickname
+      this.userform.isAdmin = row.isAdmin
+      this.isEditUser = true
+      this.dialogFormVisible = true
     },
     handleDelete (index, row) {
       // 删除单条记录
@@ -293,17 +284,52 @@ export default {
       var errMsg = '删除数据失败'
       this.ajaxMethodDelete(that, params, errMsg)
     },
+    setOrUnsetAdmin (index, row) {
+      // 设置是否为admin用户
+      var params = {}
+      var adminStatus = ''
+      var objId = row.objId
+      var that = this
+      params.datas = {}
+      let urlStr = ''
+      var arr = []
+      if (row.isAdmin === '是') {
+        urlStr = systemConfig.requestUrlConfig.userManagerRequestUrlConfig.cancelAdmin
+        arr = urlStr.split('{objId}')
+        urlStr = arr[0] + objId + arr[1]
+        params.url = urlStr
+        adminStatus = '否'
+      } else {
+        urlStr = systemConfig.requestUrlConfig.userManagerRequestUrlConfig.setAdmin
+        arr = urlStr.split('{objId}')
+        urlStr = arr[0] + objId + arr[1]
+        params.url = urlStr
+        adminStatus = '是'
+      }
+      api.get(params)
+      .then(function (res) {
+        if (res.data.code !== '000000') {
+          api.reqFail(that, res.data.message)
+          return false
+        }
+        that.tableData[index].isAdmin = adminStatus
+      })
+      .catch(function (err) {
+        console.log(err)
+        api.reqFail(that, '操作失败')
+      })
+    },
     modifyUserOpenOrClose (open) {
       var errMsg = ''
       var published = ''
       if (open) {
-        params.url = '/colife/activity/vote/publish' // 激活用户的地址
+        params.url = `${systemConfig.requestUrlConfig.userManagerRequestUrlConfig.public}` // 激活用户的地址
         errMsg = '启用用户操作失败'
-        published = '已发布'
+        published = '启用'
       } else {
-        params.url = '/colife/activity/vote/unpublish' // 停用用户用户的地址
+        params.url = `${systemConfig.requestUrlConfig.userManagerRequestUrlConfig.unpublic}` // 停用用户的地址
         errMsg = '停用用户操作失败'
-        published = '未发布'
+        published = '停用'
       }
       var ids = ''
       for (const key in this.multipleSelection) {
@@ -324,7 +350,7 @@ export default {
         // 当发布或者停止成功的时候改变选中项的状态
         obj.multipleSelection.forEach(element => {
           const index = obj.tableData.indexOf(element)
-          obj.tableData[index].published = published
+          obj.tableData[index].status = published
         })
         ajaxResultStatus = true
       })
@@ -429,7 +455,34 @@ export default {
     },
     // 新建用户
     createNewUser () {
+      this.isEditUser = false
       this.dialogFormVisible = true
+    },
+    // 提交修改用户的表单
+    editUserForm () {
+      var that = this
+      that.$refs['userform'].validate(function (valid) {
+        if (valid) {
+          var params = {}
+          params.url = `${systemConfig.requestUrlConfig.userManagerRequestUrlConfig.edit}`
+          params.datas = {}
+          params.datas.objId = that.userform.objId
+          params.datas.username = that.userform.username
+          params.datas.nickname = that.userform.nickname
+          params.datas.isAdmin = that.userform.isAdmin === '是' ? 1 : 0
+          api.post(params)
+          .then(function (res) {
+            that.initDatas()
+            that.dialogFormVisible = false
+          })
+          .catch(function (err) {
+            console.log(err)
+            api.reqFail(that, '修改用户失败，请稍后再试')
+          })
+        } else {
+          api.reqFail(that, '修改用户表单验证未通过')
+        }
+      })
     },
     // 提交新建用户表单
     submitUserForm () {
@@ -441,7 +494,7 @@ export default {
           params.datas = {}
           params.datas.username = that.userform.username
           params.datas.nickname = that.userform.nickname
-          params.datas.isAdmin = that.userform.isAdmin
+          params.datas.isAdmin = that.userform.isAdmin === '是' ? 1 : 0
           api.post(params)
           .then(function (res) {
             that.initDatas()
@@ -476,8 +529,10 @@ export default {
       userform: {
         username: '',
         nickname: '',
-        isAdmin: 0
+        isAdmin: '否'
       },
+      // 控制是否是在修改用户
+      isEditUser: false,
       dialogTableVisible: false,
       dialogFormVisible: false,
       formLabelWidth: '120px',

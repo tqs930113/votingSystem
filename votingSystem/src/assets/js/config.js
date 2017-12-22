@@ -4,6 +4,7 @@ export default {
   // 请求的接口，在请求的时候，如axios.get(url,config);这里的url会覆盖掉config中的url
   url: '/colife/activity/vote',
   method: 'GET',
+  // baseURL: '',
   baseURL: 'http://mycolife.imwork.net',
   // 请求头信息
   headers: {

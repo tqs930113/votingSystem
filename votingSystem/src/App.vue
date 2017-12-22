@@ -17,7 +17,7 @@ html,body{
   font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 }
 .layout{
-  padding:30px;
+  padding: 15px 30px;
 }
 .layout nav{
   padding: 20px 0 ;
@@ -64,12 +64,21 @@ html,body{
     top: 1px;
     right: 17px;
 }
+/* 表格 */
+.el-table .cell{
+  text-align: center;
+}
 .createNewItem .voteItems .voteItemBlock > label,
 .editVote .voteItems .voteItemBlock > label{
   font-family: "STFangsong";
   font-size: 43px;
   font-style: italic;
   text-align: center;
+}
+/* 图片上传 */
+.avatar-uploader .el-upload.el-upload--text{
+  height: 100% !important; 
+  width:100%
 }
 .base-table .el-table td{
   padding: 5px 0;

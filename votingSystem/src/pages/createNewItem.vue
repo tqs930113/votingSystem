@@ -21,7 +21,7 @@
               </div>
               <div class="layout-right forms">
                     <el-collapse v-model="activeName"  accordion>
-                        <el-collapse-item title="注册投票活动" name="1">
+                        <el-collapse-item title="新建投票活动" name="1">
                            <div class="wrap">
                              <el-form :model="voteForms" status-icon ref="voteForms" label-width="100px" >
                               <el-form-item label="投票名称:" 
@@ -71,8 +71,13 @@
                                   </el-upload>
                               </el-col>
                               <el-col :span="24" >
-                              <el-form-item label="投票内容描述:" :prop="voteForms.description">
-                                <el-input type="textarea" :rows="4" placeholder="请输入投票活动的描述内容" v-model="voteForms.description"></el-input>
+                             <el-form-item label="投票内容描述:" 
+                              prop="content"
+                              :rules="[
+                                { max: 200, message: '内容描述不能超过200字符', trigger: 'blur' }
+                              ]"
+                              >
+                                <el-input type="textarea" :rows="4" placeholder="请输入投票活动的描述内容" v-model="voteForms.content"></el-input>
                               </el-form-item>
                               </el-col>
                               <el-col :span="4" :push="20">
@@ -175,6 +180,7 @@
 <script>
   import API from '../assets/js/API.js'
   import config from '../assets/js/config.js'
+  import systemConfig from '../assets/js/systemConfig'
   const api = new API()
   var timer = null
   export default {
@@ -188,7 +194,7 @@
           beginTime: '',
           endTime: '',
           imageVote: false,
-          description: '',
+          content: '',
           imageUrl: '',
           fileList: []
         },
@@ -211,9 +217,9 @@
         },
         // 文件限制配置
         fileConf: {
-          size: 1000,
-          type: ['jpg', 'png', 'jpeg'],
-          url: `${config.baseURL}/colife/activity/vote/upload`
+          size: systemConfig.fileConf.size,
+          type: systemConfig.fileConf.type,
+          url: `${config.baseURL}${systemConfig.fileConf.url}`
         }
       }
     },
@@ -298,7 +304,7 @@
       ajaxPostMethod (that, params, successMsg, errMsg) {
         api.post(params)
         .then(function (res) {
-          if (res.data.state !== '000000') {
+          if (res.data.code !== '000000') {
             api.reqFail(that, res.data.message)
             return false
           }
@@ -309,7 +315,7 @@
           }
           if (!that.voteForms.objId) {
             // 设置新注册表单的id
-            that.voteForms.objId = res.data.data.objId
+            that.voteForms.objId = res.data.datas.objId
             // 设置页面到下一步
             that.activeName = '2'
           }
@@ -325,13 +331,13 @@
       ajaxPutMethod (that, params, successMsg, errMsg) {
         api.put(params)
         .then(function (res) {
-          if (res.data.state !== '000000') {
+          if (res.data.code !== '000000') {
             api.reqFail(that, res.data.message)
             return false
           }
           if (!that.voteForms.objId) {
             // 设置新注册表单的id
-            that.voteForms.objId = res.data.data.objId
+            that.voteForms.objId = res.data.datas.objId
           }
           // 设置页面到下一步
           that.activeName = '2'
@@ -375,15 +381,13 @@
             // 活动描述
             formDatas.description = this.voteForms.description
             // 封面地址
-            if (this.voteForms.fileList[this.voteForms.fileList.length - 1]) {
-              formDatas.imageUrl = this.voteForms.fileList[this.voteForms.fileList.length - 1].url
-            }
+            formDatas.imageUrl = this.voteForms.imageVote ? this.voteForms.imageUrl : ''
             var params = this.setAjaxParams(url, formDatas)
-            var successMsg = '注册成功'
-            var errMsg = '提交活动注册表单失败'
+            var successMsg = '新建表单成功'
+            var errMsg = '提交活动新建表单失败'
             this.ajaxPostMethod(this, params, successMsg, errMsg)
           } else {
-            api.reqFail(this, '注册投票活动表单验证出错')
+            api.reqFail(this, '新建投票活动表单验证出错')
             return false
           }
         })
@@ -409,15 +413,13 @@
             // 活动描述
             formDatas.description = this.voteForms.description
             // 封面地址
-            if (this.voteForms.fileList[this.voteForms.fileList.length - 1]) {
-              formDatas.imageUrl = this.voteForms.fileList[this.voteForms.fileList.length - 1].url
-            }
+            formDatas.imageUrl = this.voteForms.imageVote ? this.voteForms.imageUrl : ''
             var params = this.setAjaxParams(url, formDatas)
             var successMsg = '修改成功'
             var errMsg = '提交活动修改表单失败'
             this.ajaxPutMethod(this, params, successMsg, errMsg)
           } else {
-            api.reqFail(this, '注册投票活动表单验证出错')
+            api.reqFail(this, '新建投票活动表单验证出错')
             return false
           }
         })
@@ -500,26 +502,31 @@
         var tempArr = file.type.split('/')
         var fileType = tempArr[tempArr.length - 1]
         if (fileSize > this.fileConf.size) {
-          alert('超过上传文件的限制大小！')
+          api.reqFail(this, '超过上传文件的限制大小！')
           return false
         }
         if (this.fileConf.type.indexOf(fileType) < 0) {
-          alert('文件类型不符合要求')
+          api.reqFail(this, '文件类型不符合要求')
           return false
         }
         return true
       },
       voteFormsSuccessUpload (response, file, fileList) {
         // 封面图片上传成功后将图片地址存入voteforms的imageUrl
-        this.voteForms.imageUrl = response.data.picSrc
+        if (response.code !== '000000') {
+          api.reqFail(this, response.message)
+          return false
+        }
+        this.voteForms.imageUrl = response.datas.picSrc
+        api.reqSuccess(this, '上传成功')
       },
       errorUpload (err, file, fileList) {
-        api.reqFail(this, err.data.message)
+        api.reqFail(this, err.message)
       },
       successUpload (response, file, fileList) {
         // 文件上传成功所做的操作
         const index = this.voteItems.curOperateItemIndex
-        this.voteItems.domains[index].imageUrl = response.data.picSrc
+        this.voteItems.domains[index].imageUrl = response.datas.picSrc
         // this.imageUrl = URL.createObjectURL(file.raw)
       }
     }
@@ -632,6 +639,14 @@
   height: 10px;
   line-height: 10px;
   margin-top: -32px;
+}
+.click_wrap{
+  height: 100% !important;
+  width:100%
+}
+.avatar{
+  width: 100%;
+  height: 100%;
 }
 /* 置顶 */
 .fixed{

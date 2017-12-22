@@ -7,12 +7,8 @@
     </nav>
     <div class="tool-bar">
       <div class="tool-bar-btns">
-        <el-badge :value="12" class="item control ">
-          <el-button @click="createNewVote" class="control " size='small' id="createVote"  icon="el-icon-circle-plus-outline" type="primary">新建投票</el-button>
-        </el-badge>
-        <el-badge :value="12" class="item control ">
-          <el-button  class="control" size='small' id="editVote" @click="editVote"  icon="el-icon-edit" type="primary">修改投票</el-button>
-        </el-badge>
+        <el-button @click="createNewVote" class="control " size='small' id="createVote"  icon="el-icon-circle-plus-outline" type="primary">新建投票</el-button>
+        <el-button  class="control" size='small' id="editVote" @click="editVote"  icon="el-icon-edit" type="primary">修改投票</el-button>
         <el-button  class="control " @click="startVote" size='small' id="startVote" icon="el-icon-upload2" type="primary">发布投票</el-button>
         <el-button  class="control " @click="stopVote" size='small' id="stopVote" icon="el-icon-remove-outline" type="primary">停止投票</el-button>
         <el-button class="control "  @click="itemsDelete" size='small' id="deleteVote" type="danger" icon="el-icon-delete" >批量删除</el-button>
@@ -94,20 +90,18 @@
             width="180"
             label="操作">
             <template slot-scope="scope">
-              <el-badge :value="12" class="editVoteItems">
-                <el-button
-                  size="mini"
-                  type="text"
-                  @click="handleEdit(scope.$index, scope.row)">修改投票项</el-button>
-              </el-badge>
+              <el-button
+              size="mini"
+              type="text"
+              @click="handleEdit(scope.$index, scope.row)">修改投票项</el-button>
               <el-button
               size="mini"
               type="text"
               @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                <el-button
+              <el-button
               size="mini"
               type="text"
-              @click="handleDelete(scope.$index, scope.row)">统计</el-button>
+              @click="handlePageTo(scope.$index, scope.row)">统计</el-button>
             </template>   
           </el-table-column>
         </el-table>
@@ -158,7 +152,7 @@ export default {
         let result = res.data
         // 渲染表格数据
         obj.tableData = []
-        result.data.content.forEach(element => {
+        result.datas.content.forEach(element => {
           let tempObj = {}
           tempObj = element
           if (element.objId) {
@@ -188,10 +182,10 @@ export default {
           obj.tableData.push(tempObj)
         })
         // 渲染分页数据
-        obj.page.total = result.data.totalElements
-        obj.page.pageSize = result.data.size
-        obj.page.totalPages = result.data.totalPages
-        obj.page.currentPage = result.data.number + 1
+        obj.page.total = result.datas.totalElements
+        obj.page.pageSize = result.datas.size
+        obj.page.totalPages = result.datas.totalPages
+        obj.page.currentPage = result.datas.number
         // if (obj.classificationsOptions.length > 0) {
         //   handleObj = 'forbidden'
         // }
@@ -270,6 +264,11 @@ export default {
       }
       id = this.multipleSelection[0].voteId
       this.$router.push(`/editVote/editVote/${id}`)
+    },
+    handlePageTo (index, row) {
+      // 跳转到当前投票活动的统计页面
+      var voteId = row.voteId
+      this.$router.push(`/statisticalAnalysis/${voteId}`)
     },
     handleEdit (index, row) {
       // 修改投票项

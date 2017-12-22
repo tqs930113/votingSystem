@@ -54,25 +54,25 @@ export default {
           label: '用户权限管理',
           index: '/userManager',
           icon: 'el-icon-menu'
-        },
-        {
-          id: 21,
-          label: '配置管理',
-          index: 'setting',
-          icon: 'el-icon-setting',
-          children: [
-            {
-              id: 22,
-              label: '前台配置',
-              index: 'webSetting'
-            },
-            {
-              id: 23,
-              label: '系统配置',
-              index: 'systemSetting'
-            }
-          ]
         }
+        // {
+        //   id: 21,
+        //   label: '配置管理',
+        //   index: 'setting',
+        //   icon: 'el-icon-setting',
+        //   children: [
+        //     {
+        //       id: 22,
+        //       label: '前台配置',
+        //       index: 'webSetting'
+        //     },
+        //     {
+        //       id: 23,
+        //       label: '系统配置',
+        //       index: 'systemSetting'
+        //     }
+        //   ]
+        // }
       ]
     }
   },

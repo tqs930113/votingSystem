@@ -48,9 +48,11 @@
                                       <el-date-picker type="date" placeholder="选择日期" v-model="voteForms.endTime" style="width: 100%;"></el-date-picker>
                                     </el-form-item>
                                 </el-form-item>
-                                <el-form-item label="是否图片类型:" :prop="voteForms.imageVote + ''">
+                                <el-form-item label="是否图片类型:">
                                   <el-col :span="6">
-                                   <el-switch  v-model="voteForms.imageVote"></el-switch>
+                                   <el-switch  
+                                      v-model="voteForms.imageVote" 
+                                      ></el-switch>
                                   </el-col>
                                 </el-form-item>
                               </el-col>
@@ -71,8 +73,13 @@
                                   </el-upload>
                               </el-col>
                               <el-col :span="24" >
-                              <el-form-item label="投票内容描述:" :prop="voteForms.description">
-                                <el-input type="textarea" :rows="4" placeholder="请输入投票活动的描述内容" v-model="voteForms.description"></el-input>
+                              <el-form-item label="投票内容描述:" 
+                              prop="content"
+                              :rules="[
+                                { max: 200, message: '内容描述不能超过200字符', trigger: 'blur' }
+                              ]"
+                              >
+                                <el-input type="textarea" :rows="4" placeholder="请输入投票活动的描述内容" v-model="voteForms.content"></el-input>
                               </el-form-item>
                               </el-col>
                               <el-col :span="4" :push="20">
@@ -175,6 +182,7 @@
 <script>
   import API from '../assets/js/API.js'
   import config from '../assets/js/config.js'
+  import systemConfig from '../assets/js/systemConfig'
   const api = new API()
   var timer = null
   export default {
@@ -194,7 +202,7 @@
           beginTime: '',
           endTime: '',
           imageVote: false,
-          description: '',
+          content: '',
           imageUrl: '',
           fileList: []
         },
@@ -219,9 +227,9 @@
         },
         // 文件限制配置
         fileConf: {
-          size: 1000,
-          type: ['jpg', 'png', 'jpeg'],
-          url: `${config.baseURL}/colife/activity/vote/upload`
+          size: systemConfig.fileConf.size,
+          type: systemConfig.fileConf.type,
+          url: `${config.baseURL}${systemConfig.fileConf.url}`
         }
       }
     },
@@ -256,6 +264,7 @@
     methods: {
       initeDate () {
         var voteId = this.$route.params.voteId
+        var type = this.$route.params.name
         var params = {}
         var that = this
         params.url = `/colife/activity/vote/${voteId}`
@@ -263,21 +272,21 @@
         var errMsg = '加载投票信息失败'
         api.get(params)
         .then(function (res) {
-          if (res.data.state !== '000000') {
+          if (res.data.code !== '000000') {
             api.reqFail(that, res.data.message)
             return false
           }
           // 投票信息初始化
-          that.voteForms.objId = res.data.data.objId
-          that.voteForms.name = res.data.data.title
-          that.voteForms.beginTime = res.data.data.beginTime
-          that.voteForms.endTime = res.data.data.endTime
-          that.voteForms.imageVote = res.data.data.imageVote
-          that.voteForms.description = res.data.data.contentDesc
-          that.voteForms.imageUrl = res.data.data.attachUrl
+          that.voteForms.objId = res.data.datas.objId
+          that.voteForms.name = res.data.datas.title
+          that.voteForms.beginTime = res.data.datas.beginTime
+          that.voteForms.endTime = res.data.datas.endTime
+          that.voteForms.imageVote = res.data.datas.imageVote === 1
+          that.voteForms.content = res.data.datas.content
+          that.voteForms.imageUrl = res.data.datas.attachUrl
           // 投票项初始化
           that.voteItems.domains.length = 0
-          res.data.data.voteItemDOs.forEach(item => {
+          res.data.datas.voteItemDOs.forEach(item => {
             var tempObj = {}
             tempObj.voteId = item.voteId
             tempObj.objId = item.objId
@@ -290,7 +299,11 @@
             tempObj.adviceValue = `您还能输入${count - 2}个字符`
             that.voteItems.domains.push(tempObj)
           })
-          that.activeName = '2'
+          if (type === 'editVote') {
+            that.activeName = '1'
+          } else if (type === 'editVoteItems') {
+            that.activeName = '2'
+          }
           that.loading = false
         })
         .catch(function (err) {
@@ -360,18 +373,17 @@
       ajaxPostMethod (that, params, successMsg, errMsg) {
         api.post(params)
         .then(function (res) {
-          if (res.data.state !== '000000') {
+          if (res.data.code !== '000000') {
             api.reqFail(that, res.data.message)
             return false
           }
           if (that.activeName === '2') {
-            // 当前步骤为第二部时成功提交后将步骤设置为3，并跳转到投票管理界面
             that.active = 3
             that.$router.push('/voteManager')
           }
           if (!that.voteForms.objId) {
             // 设置新注册表单的id
-            that.voteForms.objId = res.data.data.objId
+            that.voteForms.objId = res.data.datas.objId
             // 设置页面到下一步
             that.activeName = '2'
           }
@@ -387,16 +399,17 @@
       ajaxPutMethod (that, params, successMsg, errMsg) {
         api.put(params)
         .then(function (res) {
-          if (res.data.state !== '000000') {
+          if (res.data.code !== '000000') {
             api.reqFail(that, res.data.message)
             return false
           }
           if (!that.voteForms.objId) {
             // 设置新注册表单的id
-            that.voteForms.objId = res.data.data.objId
+            that.voteForms.objId = res.data.datas.objId
           }
           // 设置页面到下一步
-          that.activeName = '2'
+          that.activeName = '3'
+          that.$router.push('/voteManager')
           api.reqSuccess(that, successMsg)
         })
         .catch(function (err) {
@@ -421,7 +434,7 @@
         }
       },
       submitVoteForm (formName) {
-        // 提交注册信息
+        // 提交注册信息 不会使用
         this.$refs[formName].validate((valid) => {
           if (valid) {
             var url = '/colife/activity/vote'
@@ -435,11 +448,9 @@
             // 是否为图片类型投票
             formDatas.imageVote = this.voteForms.imageVote ? 1 : 0
             // 活动描述
-            formDatas.contentDesc = this.voteForms.description
+            formDatas.description = this.voteForms.content
             // 封面地址
-            if (this.voteForms.fileList[this.voteForms.fileList.length - 1]) {
-              formDatas.attachUrl = this.voteForms.fileList[this.voteForms.fileList.length - 1].url
-            }
+            formDatas.imageUrl = this.voteForms.imageVote ? this.voteForms.imageUrl : ''
             var params = this.setAjaxParams(url, formDatas)
             var successMsg = '注册成功'
             var errMsg = '提交活动注册表单失败'
@@ -469,12 +480,9 @@
             // 是否为图片类型投票
             formDatas.imageVote = this.voteForms.imageVote ? 1 : 0
             // 活动描述
-            formDatas.contentDesc = this.voteForms.description
+            formDatas.description = this.voteForms.content
             // 封面地址
-            formDatas.attachUrl = this.voteForms.imageUrl
-            // if (this.voteForms.fileList[this.voteForms.fileList.length - 1]) {
-            //   formDatas.attachUrl = this.voteForms.fileList[this.voteForms.fileList.length - 1].url
-            // }
+            formDatas.imageUrl = this.voteForms.imageVote ? this.voteForms.imageUrl : ''
             var params = this.setAjaxParams(url, formDatas)
             var successMsg = '修改成功'
             var errMsg = '提交活动修改表单失败'
@@ -491,19 +499,22 @@
       },
       removeDomain (item) {
         // 移除选中的dom
-        console.log(item)
         var index = this.voteItems.domains.indexOf(item)
         var params = {}
         var that = this
+        if (item.objId.length <= 0) {
+          that.voteItems.domains.splice(index, 1)
+          return false
+        }
         params.url = `/colife/activity/vote/voteItem/${item.objId}`
         api.delete(params)
         .then(function (res) {
-          if (res.data.state !== '') {
+          if (res.data.code !== '000000') {
             api.reqFail(that, res.data.message)
             return false
           }
           if (index !== -1) {
-            this.voteItems.domains.splice(index, 1)
+            that.voteItems.domains.splice(index, 1)
           }
         })
         .catch(function (err) {
@@ -517,7 +528,7 @@
         var length = this.voteItems.domains.length + 1
         this.voteItems.domains.push({
           objId: '',
-          voteId: '',
+          voteId: that.voteForms.objId,
           value: '',
           resourceUrl: '',
           docId: null,
@@ -553,12 +564,6 @@
               tempObj.docUrl = element.resourceUrl
               tempObj.imageUrl = element.imageUrl
               tempObj.docId = element.docId
-              // tempObj.imageUrl = imageUrl
-              // if (element.fileList[element.fileList.length - 1]) {
-              //   tempObj.imageUrl = element.fileList[element.fileList.length - 1].url
-              // } else {
-              //   tempObj.imageUrl = ''
-              // }
               formDatas.voteItems.push(tempObj)
             })
             formDatas.voteItems = JSON.stringify(formDatas.voteItems)
@@ -582,27 +587,31 @@
         var tempArr = file.type.split('/')
         var fileType = tempArr[tempArr.length - 1]
         if (fileSize > this.fileConf.size) {
-          alert('超过上传文件的限制大小！')
+          api.reqFail(this, '超过上传文件的限制大小！')
           return false
         }
         if (this.fileConf.type.indexOf(fileType) < 0) {
-          alert('文件类型不符合要求')
+          api.reqFail(this, '文件类型不符合要求')
           return false
         }
         return true
       },
       voteFormsSuccessUpload (response, file, fileList) {
         // 封面图片上传成功后将图片地址存入voteforms的imageUrl
-        this.voteForms.imageUrl = response.data.picSrc
+        if (response.code !== '000000') {
+          api.reqFail(this, response.message)
+          return false
+        }
+        this.voteForms.imageUrl = response.datas.picSrc
         api.reqSuccess(this, '上传成功')
       },
       errorUpload (err, file, fileList) {
-        api.reqFail(this, err.data.message)
+        api.reqFail(this, err.message)
       },
       successUpload (response, file, fileList) {
         // 文件上传成功所做的操作
         const index = this.voteItems.curOperateItemIndex
-        this.voteItems.domains[index].imageUrl = response.data.picSrc
+        this.voteItems.domains[index].imageUrl = response.datas.picSrc
         api.reqSuccess(this, '上传成功')
         // this.imageUrl = URL.createObjectURL(file.raw)
       }
@@ -720,6 +729,14 @@
   height: 10px;
   line-height: 10px;
   margin-top: -32px;
+}
+.click_wrap{
+  height: 100% !important;
+  width:100%
+}
+.avatar{
+  width: 100%;
+  height: 100%;
 }
 /* 置顶 */
 .fixed{
