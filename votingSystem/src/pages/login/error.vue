@@ -5,12 +5,12 @@
           <div class="error__number"></div>
           <div class="error__word">
               <p class="description">
-                  This Page Could Not Be Found !
+                  {{getDescription}}
               </p>
           </div>
           <div class="error__button">
             <div class="label"><span class="count">{{count}}</span>秒后</div>
-            <el-button @click="redirectTargetUrl" round>回到上个页面</el-button>
+            <el-button @click="redirectTargetUrl" round>回到登录页面</el-button>
           </div>
       </div>
   </div>
@@ -24,7 +24,12 @@ export default {
   data () {
     return {
       count: config.errorPageConfig.initSecondCount,
-      redirectURL: 'http://www.baidu.com'
+      redirectURL: config.errorPageConfig.redirectUrl
+    }
+  },
+  computed: {
+    getDescription () {
+      return this.$route.query.description
     }
   },
   methods: {
@@ -32,7 +37,6 @@ export default {
       var that = this
       var timer = setInterval(function () {
         that.count -= 1
-        console.log(that.count)
         if (that.count === 0) {
           clearInterval(timer)
           window.location.href = that.redirectURL

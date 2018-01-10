@@ -39,7 +39,7 @@ export default {
       items: [
         {
           id: 2,
-          label: '自述',
+          label: '首页',
           index: '/about',
           icon: 'el-icon-tickets'
         },

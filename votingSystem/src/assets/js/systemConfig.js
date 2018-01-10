@@ -2,7 +2,9 @@ export default {
   // 错误页面的配置
   errorPageConfig: {
     // 配置错误页面，从多少秒后跳转到redirectUrl
-    initSecondCount: 5
+    initSecondCount: 5,
+    // 重定向到登录界面的地址
+    redirectUrl: '/'
   },
   // 文件上传配置
   fileConf: {
@@ -30,6 +32,12 @@ export default {
   },
   // 系统请求地址的配置项
   requestUrlConfig: {
+    header: {
+      getOnlineUserInfo: '/colife/activity/admin/getOnlineUser'
+    },
+    login: {
+      checkUserValidation: '/colife/activity/authority'
+    },
     userManagerRequestUrlConfig: {
       list: '/colife/activity/admin/list/',
       delete: '/colife/activity/admin/delete/',
@@ -57,8 +65,9 @@ export default {
       },
       userStatus: {
         // 用户状态
-        1: '启用',
-        0: '停用'
+        2: '全部',
+        0: '启用',
+        1: '停用'
       }
     },
     voteManager: {

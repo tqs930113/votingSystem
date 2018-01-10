@@ -66,6 +66,7 @@
                                     :on-success="voteFormsSuccessUpload"
                                     :before-upload="checkFile"
                                     :on-error="errorUpload"
+                                    :headers="setheaders"
                                     :file-list="voteForms.fileList">
                                     <img v-if="voteForms.imageUrl" :src="voteForms.imageUrl" class="avatar">
                                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -157,6 +158,7 @@
                                     :before-upload="checkFile"
                                     :on-error="errorUpload"
                                     :file-list="domain.fileList"
+                                    :headers="setheaders"
                                     >
                                     <div class="click_wrap" @click="changeCurOperateItemIndex(index)">
                                       <img v-if="domain.imageUrl" :src="domain.imageUrl" class="avatar">
@@ -239,6 +241,11 @@
       },
       isEditVote () {
         return this.$route.params.name === 'editVote'
+      },
+      setheaders () {
+        var tempObj = {}
+        tempObj.token = api.getToken('token')
+        return tempObj
       }
     },
     watch: {
@@ -607,6 +614,9 @@
       },
       errorUpload (err, file, fileList) {
         api.reqFail(this, err.message)
+      },
+      progressUpload (event, file, fileList) {
+        console.log(event)
       },
       successUpload (response, file, fileList) {
         // 文件上传成功所做的操作

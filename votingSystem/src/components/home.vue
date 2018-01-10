@@ -32,7 +32,7 @@ export default {
   /* box-shadow: 0px 0px 10px 0px rgba(0,0, 0,.5); */
   border-right: 1px solid goldenrod;
   text-align: center;
-  width:20%;
+  width:15%;
   position: fixed;
   top:80px;
   left: 0;
@@ -42,7 +42,7 @@ export default {
   position: fixed;
   right: 0;
   top:80px;
-  width:80%;
+  width:85%;
   height: 88%;
   overflow: auto;
 }

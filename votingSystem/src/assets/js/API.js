@@ -1,6 +1,7 @@
 import axios from 'axios'
 import config from './config'
 import Qs from 'qs'
+import cookieUntil from './cookieUntil'
 
 // axios(config);
 class API {
@@ -45,6 +46,17 @@ class API {
       return year + '年' + month + '月' + date + '日 ' + hour + '时' + minute + '分' + second + '秒'
     }
     return year + operation + month + operation + date + ' ' + hour + ':' + minute + ':' + second
+  }
+  checkToken (tokenSymbol, that, expires) {
+    // debugger
+    var paramsObj = that.$route.query
+    if (paramsObj[tokenSymbol] === undefined) {
+      return
+    }
+    cookieUntil.set(tokenSymbol, paramsObj[tokenSymbol], cookieUntil.setCookieDate(expires))
+  }
+  getToken (tokenSymbol) {
+    return cookieUntil.get(tokenSymbol)
   }
 }
 export default API

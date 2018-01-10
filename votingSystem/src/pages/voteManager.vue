@@ -202,9 +202,9 @@ export default {
         if (err) {
           console.log(err)
         }
-        obj.loading = false
         // 弹出加载失败提示
         api.reqFail(obj, errMsg)
+        obj.loading = false
         ajaxResultStatus = false
       })
       return ajaxResultStatus
@@ -377,7 +377,7 @@ export default {
     handleChange (val) {
       this.loading = true
       params = {}
-      params.url = `/colife/activity/vote?activityState=${val}&pageNumber=${this.page.currentPage}&pageSize=${this.page.pageSize}`
+      params.url = `/colife/activity/vote?state=${val}&pageNumber=${this.page.currentPage}&pageSize=${this.page.pageSize}`
       let that = this
       var errMsg = '刷新投票活动列表失败'
       this.ajaxMethod(that, params, errMsg)
@@ -413,7 +413,7 @@ export default {
       }
       this.loading = true
       params.datas = {}
-      params.url = `/colife/activity/vote?name=${this.searchKeyWord}&pageNumber=${this.page.currentPage}&pageSize=${this.page.pageSize}`
+      params.url = `/colife/activity/vote?title=${this.searchKeyWord}&pageNumber=${this.page.currentPage}&pageSize=${this.page.pageSize}`
       let that = this
       var errMsg = '搜索失败，请稍后重试'
       this.ajaxMethod(that, params, errMsg)

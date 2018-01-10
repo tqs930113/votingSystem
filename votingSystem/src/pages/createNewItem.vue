@@ -64,7 +64,8 @@
                                     :on-success="voteFormsSuccessUpload"
                                     :before-upload="checkFile"
                                     :on-error="errorUpload"
-                                    :file-list="voteForms.fileList">
+                                    :file-list="voteForms.fileList"
+                                    :headers="setheaders">
                                     <img v-if="voteForms.imageUrl" :src="voteForms.imageUrl" class="avatar">
                                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                                     <span class="picture_word">图片上传</span>
@@ -155,6 +156,7 @@
                                     :before-upload="checkFile"
                                     :on-error="errorUpload"
                                     :file-list="domain.fileList"
+                                    :headers="setheaders"
                                     >
                                     <div class="click_wrap" @click="changeCurOperateItemIndex(index)">
                                       <img v-if="domain.imageUrl" :src="domain.imageUrl" class="avatar">
@@ -221,6 +223,13 @@
           type: systemConfig.fileConf.type,
           url: `${config.baseURL}${systemConfig.fileConf.url}`
         }
+      }
+    },
+    computed: {
+      setheaders () {
+        var tempObj = {}
+        tempObj.token = api.getToken('token')
+        return tempObj
       }
     },
     watch: {
@@ -474,11 +483,13 @@
               tempObj.docUrl = element.resourceUrl
               tempObj.docId = element.docId
               // tempObj.imageUrl = imageUrl
-              if (element.fileList[element.fileList.length - 1]) {
-                tempObj.imageUrl = element.fileList[element.fileList.length - 1].url
-              } else {
-                tempObj.imageUrl = ''
-              }
+              // test
+              tempObj.imageUrl = element.imageUrl
+              // if (element.fileList[element.fileList.length - 1]) {
+              //   tempObj.imageUrl = element.fileList[element.fileList.length - 1].url
+              // } else {
+              //   tempObj.imageUrl = ''
+              // }
               formDatas.voteItems.push(tempObj)
             })
             formDatas.voteItems = JSON.stringify(formDatas.voteItems)

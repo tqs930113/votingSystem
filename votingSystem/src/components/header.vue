@@ -6,34 +6,54 @@
             ref="popover5"
             placement="bottom"
             width="100"
-            v-model="visible2">
+            >
             <div style="text-align: center; margin: 0">
-                <el-button type="primary" size="mini" @click="visible2 = false">退出</el-button>
+                <el-button type="primary" size="mini" @click="logout">退出</el-button>
             </div>
             </el-popover>
         <div class="account"  >
             <div class="logoutBlock"  v-popover:popover5></div>
             <div class="photo"></div> 
             <div class="user-name" id="userName">
-               {{userName}}
+               {{username}}
             </div>
         </div>
 
     </header>
 </template>
 <script>
+import API from '../assets/js/API'
+import cookieUntil from '../assets/js/cookieUntil'
+import systemConfig from '../assets/js/systemConfig'
+const api = new API()
 export default {
+  beforeMount () {
+    const that = this
+    var params = {}
+    params.datas = {}
+    params.url = systemConfig.requestUrlConfig.header.getOnlineUserInfo
+    api.get(params)
+    .then(function (res) {
+      that.username = res.data.datas.username
+    })
+    .catch(function (err) {
+      console.log(err)
+    })
+  },
   data () {
     return {
-      visible2: false
+      username: ''
     }
   },
   computed: {
-    userName () {
-      return 'admin'
-    },
     logoText () {
       return '网站投票管理系统'
+    }
+  },
+  methods: {
+    logout () {
+      cookieUntil.delete('token')
+      this.$router.push('login')
     }
   }
 }

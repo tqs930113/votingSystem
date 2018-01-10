@@ -7,7 +7,7 @@
           <h1>voting-manage-system</h1>
           <p >基于Vue.js 2.x系列 + Element UI 的投票活动后台管理系统</p>
           <h1>前言</h1>
-          <p>用VUE + Element组件库做的投票活动后台管理系统，功能及系统框架仍需继续完善</p>
+          <p>用VUE + Element 组件库做的投票活动后台管理系统，功能及系统框架仍需继续完善</p>
           <h1>功能</h1>
           <ul>
             <li>

@@ -6,7 +6,7 @@
       </div>
       <div class="login-container">
           <el-input autofocus v-model="username" required type="text" class='input' prefix-icon="el-icon-edit-outline" placeholder="请输入姓名"></el-input>  
-          <el-input v-model="password" type="password"  class='input' prefix-icon="el-icon-edit" placeholder="请输入用户密码"></el-input>
+          <el-input v-model="password" type="text"  class='input' prefix-icon="el-icon-edit" placeholder="请输入用户密码"></el-input>
           <div class="form-group">
             <el-button type="text">忘记密码</el-button>
             <el-button type="primary" @click="login">登录</el-button>
@@ -15,27 +15,37 @@
       </div>
     </div>
     <div class="copyright">
-      COPYRIGHT &copy; 2017  网站投票管理系统
+     COPYRIGHT &copy; 2017  网站投票管理系统
     </div>
   </div>
 </template>
 <script>
+import systemConfig from '../../assets/js/systemConfig'
+import config from '../../assets/js/config'
 export default {
   data () {
     return {
-      username: '',
-      password: ''
+      username: '3NEde0Z2wmY=',
+      password: '',
+      redirectUrl: ''
+      // redirectUrl: './voteManager'
+    }
+  },
+  watch: {
+    password (cval, bval) {
+      this.redirectUrl = cval
     }
   },
   methods: {
     login () {
-      var self = this
-      console.log(self.username + ' & ' + self.password)
-      this.$router.push('/about')
+      var that = this
+      var params = {}
+      params.url = `${config.baseURL}${systemConfig.requestUrlConfig.login.checkUserValidation}?authorityUsername=${encodeURIComponent(that.username)}&state=0&redirectUrl=${encodeURIComponent(that.redirectUrl)}`
+      window.location.href = params.url
     },
     reset () {
       var self = this
-      console.log('username is :' + this.username)
+      // console.log('username is :' + this.username)
       self.username = ''
       self.password = ''
     }

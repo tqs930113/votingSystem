@@ -8,8 +8,8 @@
       <div class="tool-bar">
       <div class="tool-bar-btns">
          <el-button  class="control " size='small' id="createUser"  @click="createNewUser" icon="el-icon-circle-plus-outline" type="primary">新建用户</el-button>
-        <el-button  class="control " size='small' id="activateUser" icon="el-icon-upload2" type="primary">激活用户</el-button>
-        <el-button  class="control " size='small' id="stopUser" icon="el-icon-remove-outline" type="primary">停用用户</el-button>
+        <el-button  class="control " size='small' id="activateUser" @click="startUser" icon="el-icon-upload2" type="primary">激活用户</el-button>
+        <el-button  class="control " size='small' id="stopUser" @click="stopUser" icon="el-icon-remove-outline" type="primary">停用用户</el-button>
         <el-button class="control "   size='small' id="deleteUsers" type="danger" @click="itemsDelete" icon="el-icon-delete" >批量删除</el-button>
       </div>
       <div class="tool-bar-others">
@@ -74,7 +74,6 @@
             sortable
             >
           </el-table-column>
-          </el-table-column>
           <el-table-column
             prop="status"
             label="状态"
@@ -87,7 +86,7 @@
               <el-button
                 size="mini"
                 type="text"
-                @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+                @click="handleEdit(scope.$index, scope.row)">修改</el-button>
               <el-button
                 size="mini"
                 type="text"
@@ -342,10 +341,11 @@ export default {
         return false
       }
       params.datas = {}
-      ids = '?objIds=' + ids
-      params.url += ids
+      params.datas.objIds = ids
+      // ids = '?objIds=' + ids
+      // params.url += ids
       var obj = this
-      api.get(params)
+      api.put(params)
       .then(function (res) {
         // 当发布或者停止成功的时候改变选中项的状态
         obj.multipleSelection.forEach(element => {
@@ -412,7 +412,11 @@ export default {
     handleChange (val) {
       this.loading = true
       params = {}
-      params.url = `${systemConfig.requestUrlConfig.userManagerRequestUrlConfig.list}?status=${val}&pageNumber=${this.page.currentPage}&pageSize=${this.page.pageSize}`
+      if (val === '2') {
+        params.url = `${systemConfig.requestUrlConfig.userManagerRequestUrlConfig.list}?pageNumber=${this.page.currentPage}&pageSize=${this.page.pageSize}`
+      } else {
+        params.url = `${systemConfig.requestUrlConfig.userManagerRequestUrlConfig.list}?status=${val}&pageNumber=${this.page.currentPage}&pageSize=${this.page.pageSize}`
+      }
       let that = this
       var errMsg = '刷新用户列表失败'
       this.ajaxMethod(that, params, errMsg)
